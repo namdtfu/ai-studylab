@@ -91,7 +91,7 @@
   "loadSample": "예제 불러오기",
   "downloadSchema": "JSON 스키마 다운로드",
   "download": "JSON 다운로드",
-  "invalidJson": "유효한 JSON을 입력하세요. 코드 블록 기호는 제거하세요.",
+  "invalidJson": "JSON 문법이 올바르지 않습니다. 괄호, 따옴표와 수식의 문자를 확인하세요.",
   "tooLarge": "파일 크기는 1 MB 이하여야 합니다.",
   "required": "필수 값 또는 허용 길이를 확인하세요.",
   "invalidField": "데이터 형식 또는 허용 값을 확인하세요.",

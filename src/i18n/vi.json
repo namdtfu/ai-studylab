@@ -91,7 +91,7 @@
   "loadSample": "Tải bài mẫu",
   "downloadSchema": "Tải JSON Schema",
   "download": "Tải JSON",
-  "invalidJson": "Nhập JSON hợp lệ. Xóa dấu khối mã nếu có.",
+  "invalidJson": "JSON chưa đúng cú pháp. Kiểm tra dấu ngoặc, dấu nháy và ký tự trong công thức.",
   "tooLarge": "Nội dung phải nhỏ hơn 1 MB.",
   "required": "Kiểm tra giá trị bắt buộc và độ dài cho phép.",
   "invalidField": "Kiểm tra kiểu dữ liệu và giá trị cho phép.",

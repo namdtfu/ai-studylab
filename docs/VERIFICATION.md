@@ -80,3 +80,5 @@ Hoàn tất cấu hình theo README rồi thực hiện toàn bộ `docs/CHECKLI
 - Prompt hướng dẫn mã hóa JSON, có ví dụ escape được kiểm thử, yêu cầu trả khối mã để dùng nút Copy và giữ dấu phân cách công thức.
 - 6 kiểm thử mới kiểm tra sửa lỗi LaTeX, giữ escape hợp lệ, tính lặp lại không thay đổi, giới hạn/schema, khối mã và luồng xem trước → lưu → mở bài.
 - File thực tế đã sửa vượt qua schema đủ 10 câu; 74 công thức được phân tích bằng remark-math và render KaTeX không lỗi. Chỉ sửa định dạng; chưa thẩm định toàn bộ tính đúng đắn học thuật của tài liệu AI.
+- GitHub Pages đã phát hành bản sửa; kiểm tra bằng tài khoản thật: JSON gốc hiện lỗi, nút Sửa định dạng JSON tạo được bản xem trước đủ 10 câu. Bản có công thức được chuẩn hóa đã nhập thành công từ khối mã, lưu qua Edge Function và đọc lại sau reload.
+- Quiz mở đủ 10 câu, chưa chọn đáp án hoặc nộp bài trong lần xác minh này. Bài được giữ trong tài khoản người dùng để học.
