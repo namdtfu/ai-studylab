@@ -183,5 +183,10 @@
   "duplicateSubject": "같은 학기에 동일한 이름의 과목이 있습니다.",
   "subjectNameRequired": "과목 이름은 공백 없이 1~120자로 입력하세요.",
   "catalogLoadError": "학기와 과목을 불러오지 못했습니다. 다시 시도하세요.",
-  "catalogSaveError": "과목 목록을 저장하지 못했습니다. 다시 시도하세요."
+  "catalogSaveError": "과목 목록을 저장하지 못했습니다. 다시 시도하세요.",
+  "repairJson": "JSON 형식 수정",
+  "jsonPasteHelp": "AI 응답의 코드 블록 복사 버튼으로 JSON을 복사해 붙여넣으세요. 자료 생성 요청 프롬프트를 붙여넣는 곳이 아닙니다.",
+  "jsonEscapeHelp": "수식의 역슬래시나 줄바꿈이 JSON 형식에 맞지 않을 수 있습니다. ‘JSON 형식 수정’ 후 미리보기를 확인하세요.",
+  "jsonRepaired": "JSON 형식을 정리했습니다. 저장 전에 미리보기의 수식과 정답을 확인하세요.",
+  "jsonRepairFailed": "JSON을 수정하지 못했습니다. 코드 블록, LaTeX 역슬래시와 줄바꿈만 수정하며, 누락된 내용이나 정답을 만들지 않습니다."
 }

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FileJson, CheckCircle2, AlertTriangle, Download } from "lucide-react";
 import { api } from "../lib/api";
+import { parseLessonInput, repairLessonInput } from "../lib/lesson-input";
 import {
   parseLesson,
   validationIssues,
@@ -22,6 +23,7 @@ export function Import() {
     [content, setContent] = useState<LessonContent>(),
     [issues, setIssues] = useState<{ path: string; key: string }[]>([]),
     [error, setError] = useState(""),
+    [repaired, setRepaired] = useState(false),
     [busy, setBusy] = useState(false);
   useEffect(() => {
     if (!editId) return;
@@ -39,15 +41,32 @@ export function Import() {
     setRaw(value);
     setContent(undefined);
     setIssues([]);
+    setError("");
+    setRepaired(false);
   }
   function validate() {
     setError("");
     try {
-      setContent(parseLesson(raw));
+      setContent(parseLessonInput(raw));
       setIssues([]);
     } catch (e) {
       setContent(undefined);
       setIssues(validationIssues(e));
+    }
+  }
+  function repair() {
+    setError("");
+    setRepaired(false);
+    try {
+      const result = repairLessonInput(raw);
+      setRaw(result.raw);
+      setContent(result.content);
+      setIssues([]);
+      setRepaired(true);
+    } catch (e) {
+      setContent(undefined);
+      setIssues(validationIssues(e));
+      setError("jsonRepairFailed");
     }
   }
   async function file(file?: File) {
@@ -138,7 +157,21 @@ export function Import() {
               <CheckCircle2 size={17} />
               {t("validate")}
             </button>
+            <button
+              className="btn secondary"
+              type="button"
+              onClick={repair}
+              disabled={!raw || busy}
+            >
+              {t("repairJson")}
+            </button>
           </div>
+          <p className="muted small">{t("jsonPasteHelp")}</p>
+          {repaired && (
+            <p className="notice" role="status">
+              {t("jsonRepaired")}
+            </p>
+          )}
           {issues.length > 0 && (
             <ul className="validation-errors" role="alert">
               {issues.map((e, i) => (
@@ -147,6 +180,9 @@ export function Import() {
                 </li>
               ))}
             </ul>
+          )}
+          {issues.some((e) => e.key === "invalidJson") && (
+            <p className="small field-error">{t("jsonEscapeHelp")}</p>
           )}
           {error && (
             <p className="field-error" role="alert">

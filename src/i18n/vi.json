@@ -183,5 +183,10 @@
   "duplicateSubject": "Tên môn bị trùng trong cùng học kỳ.",
   "subjectNameRequired": "Tên môn cần có từ 1 đến 120 ký tự, không được để trống.",
   "catalogLoadError": "Không tải được danh sách học kỳ và môn học. Hãy thử lại.",
-  "catalogSaveError": "Không lưu được danh sách môn học. Hãy thử lại."
+  "catalogSaveError": "Không lưu được danh sách môn học. Hãy thử lại.",
+  "repairJson": "Sửa định dạng JSON",
+  "jsonPasteHelp": "Dán JSON trả về từ AI bằng nút Sao chép của khối mã. Không dán prompt yêu cầu tạo bài học vào đây.",
+  "jsonEscapeHelp": "Công thức hoặc xuống dòng có thể sai định dạng JSON. Thử “Sửa định dạng JSON”, rồi kiểm tra bản xem trước.",
+  "jsonRepaired": "Đã chuẩn hóa định dạng JSON. Hãy kiểm tra công thức và đáp án trong bản xem trước trước khi lưu bài học.",
+  "jsonRepairFailed": "Chưa sửa được JSON. Công cụ chỉ xử lý dấu khối mã, dấu gạch chéo trong LaTeX và xuống dòng; không tự thêm nội dung hoặc đáp án còn thiếu."
 }

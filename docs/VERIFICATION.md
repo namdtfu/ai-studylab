@@ -4,7 +4,7 @@
 
 | Kiểm tra | Kết quả |
 |---|---|
-| `npm test` | **48/48** tests, 7 suites |
+| `npm test` | **54/54** tests, 9 suites |
 | `npm run build` | TypeScript strict và Vite production build thành công |
 | `VITE_BASE_PATH=/test-repository/ npm run build` | Build với repository subpath thành công |
 | `scripts/check-build.mjs` | 8 entry assets tồn tại, đúng prefix cho cả `/` và `/test-repository/` |
@@ -72,3 +72,11 @@ Hoàn tất cấu hình theo README rồi thực hiện toàn bộ `docs/CHECKLI
 - Quản lý môn/học kỳ lưu riêng vào Supabase, kiểm tra cấu trúc bằng Zod và pg_jsonschema. RLS chỉ cho sửa profile của chính mình.
 - 8 kiểm thử mới: form chọn môn, lựa chọn duy nhất qua học kỳ, prompt, kỳ trống, quản lý danh sách, lỗi lưu, môn trùng và PostgreSQL/RLS.
 - Migration 005 đã chạy thành công trên Supabase thật. Truy vấn trong giao dịch xác nhận danh sách mặc định và pg_jsonschema từ chối curriculum sai cấu trúc; giao dịch kiểm thử được rollback.
+
+## Sửa luồng nhập JSON có LaTeX — 15/11/2026
+
+- Tái hiện lỗi bằng JSON Faraday do người dùng cung cấp: dấu gạch chéo LaTeX chưa escape và xuống dòng trực tiếp trong chuỗi khiến JSON.parse từ chối.
+- Trang nhập nhận một khối mã JSON hoàn chỉnh; nút Sửa định dạng JSON xử lý lỗi escape/xuống dòng theo yêu cầu rồi kiểm tra lại bằng schema gốc. Không tự thêm câu hỏi hoặc đáp án.
+- Prompt hướng dẫn mã hóa JSON, có ví dụ escape được kiểm thử, yêu cầu trả khối mã để dùng nút Copy và giữ dấu phân cách công thức.
+- 6 kiểm thử mới kiểm tra sửa lỗi LaTeX, giữ escape hợp lệ, tính lặp lại không thay đổi, giới hạn/schema, khối mã và luồng xem trước → lưu → mở bài.
+- File thực tế đã sửa vượt qua schema đủ 10 câu; 74 công thức được phân tích bằng remark-math và render KaTeX không lỗi. Chỉ sửa định dạng; chưa thẩm định toàn bộ tính đúng đắn học thuật của tài liệu AI.

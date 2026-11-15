@@ -36,6 +36,7 @@ npm run preview
 - Dashboard lấy dữ liệu thực; quản lý bài học theo môn/chương tự nhập, tìm kiếm, lọc, sửa và xóa mềm.
 - Bộ tạo prompt chọn một môn trong dropdown học kỳ; Kỳ 1 có 수학 1, 물리학 1; Kỳ 2 có 수학 2, 물리학 2; Kỳ 3 trống. Cho phép thêm/đổi tên/xóa môn, thêm học kỳ và lưu riêng theo tài khoản Supabase. Bỏ trường trình độ, prompt dùng mặc định University.
 - Bộ tạo prompt đồng bộ schema; quy trình PDF với AI bên ngoài; tùy chọn trích văn bản PDF cục bộ (20 MB, 100 trang). PDF không được tự tải lên hay lưu.
+- Nhận JSON hoặc khối mã JSON; nút Sửa định dạng JSON hỗ trợ escape LaTeX và xuống dòng sai, vẫn bắt buộc schema đầy đủ.
 - Nhập JSON tối đa 1 MB, lỗi có đường dẫn trường, xem trước đầy đủ đáp án trước khi lưu; hai mẫu tiếng Hàn.
 - Markdown an toàn, KaTeX, bảng, mã nguồn, mục tiêu, lý thuyết, ví dụ, lỗi thường gặp và tóm tắt.
 - 10 câu / bài: 5 lý thuyết rồi 5 vận dụng, mỗi câu 4 lựa chọn. Không hẹn giờ. Thay đổi đáp án, điều hướng, cảnh báo câu trống, xác nhận nộp.

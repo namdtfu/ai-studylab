@@ -40,6 +40,6 @@ Không chạy lại bootstrap trên project đã có bảng. Dùng migration m�
 - Website: https://namdtfu.github.io/ai-studylab/
 - Source: GitHub Actions, workflow `.github/workflows/deploy.yml`, nhánh `main`.
 - Repository variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_BASE_PATH=/ai-studylab/`.
-- Mỗi lần push `main`, workflow kiểm tra schema, chạy 48 tests, TypeScript build và deploy frontend.
+- Mỗi lần push `main`, workflow kiểm tra schema, chạy 54 tests, TypeScript build và deploy frontend.
 - Backend và dữ liệu Supabase dùng lại project hiện tại; không chạy lại bootstrap.
 - Không có service-role key, database password hay token GitHub trong mã nguồn/biến frontend.

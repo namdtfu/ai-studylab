@@ -110,6 +110,9 @@ describe("canonical content validation", () => {
     });
     expect(prompt).toContain(JSON.stringify(schema, null, 2));
     expect(prompt).toContain("sourcePage");
+    const encodingExample = prompt.match(/Correct JSON example: (.+)\n/)![1];
+    expect(JSON.parse(encodingExample).content).toContain("\\Phi_B");
+    expect(JSON.parse(encodingExample).content).toContain("\\frac{d\\Phi_B}{dt}");
     const sql = readFileSync(
       "supabase/migrations/202611150002_schema.sql",
       "utf8",
