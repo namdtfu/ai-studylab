@@ -4,7 +4,7 @@
 
 | Kiểm tra | Kết quả |
 |---|---|
-| `npm test` | **40/40** tests, 6 suites |
+| `npm test` | **48/48** tests, 7 suites |
 | `npm run build` | TypeScript strict và Vite production build thành công |
 | `VITE_BASE_PATH=/test-repository/ npm run build` | Build với repository subpath thành công |
 | `scripts/check-build.mjs` | 8 entry assets tồn tại, đúng prefix cho cả `/` và `/test-repository/` |
@@ -20,7 +20,7 @@ Kiểm thử PostgreSQL dùng **PGlite**, chạy PL/pgSQL và RLS thật: tạo 
 
 ## Supabase thật: đã triển khai và xác minh
 
-Project `yitolptsdnjxehzbwass` đã được áp dụng bốn migration qua SQL Editor trong giao dịch: pg_jsonschema, bảng, RLS, RPC import/edit/grade chỉ dành cho service_role và profile backfill.
+Project `yitolptsdnjxehzbwass` đã được áp dụng năm migration qua SQL Editor trong giao dịch: pg_jsonschema, bảng, RLS, RPC import/edit/grade chỉ dành cho service_role profile backfill và danh sách học kỳ/môn học riêng trong profiles.curriculum.
 
 Ba Edge Function `import-lesson`, `grade-quiz`, `edit-lesson` đã deploy qua Dashboard từ bundle tạo bởi `scripts/bundle-edge.mjs`. Theo phê duyệt của người dùng, legacy JWT gateway được tắt; function vẫn bắt buộc xác minh `auth.getUser(token)`.
 
@@ -64,3 +64,11 @@ Hoàn tất cấu hình theo README rồi thực hiện toàn bộ `docs/CHECKLI
 - Base path: `/ai-studylab/`; frontend dùng lại project Supabase và ba Edge Function đã kiểm thử thật.
 - Supabase Site URL đã đổi sang URL GitHub Pages; Redirect URLs giữ cả GitHub Pages và bản Sites cũ.
 - Session đăng nhập được lưu theo origin của trình duyệt. Người dùng đăng nhập lại ở địa chỉ GitHub Pages bằng cùng tài khoản; dữ liệu Supabase được giữ nguyên.
+
+## Dropdown học kỳ và môn học — 15/11/2026
+
+- Bỏ trường trình độ; giữ mặc định University trong prompt theo schema hiện có.
+- Chọn duy nhất một môn: Kỳ 1 (수학 1, 물리학 1), Kỳ 2 (수학 2, 물리학 2), Kỳ 3 chưa có môn.
+- Quản lý môn/học kỳ lưu riêng vào Supabase, kiểm tra cấu trúc bằng Zod và pg_jsonschema. RLS chỉ cho sửa profile của chính mình.
+- 8 kiểm thử mới: form chọn môn, lựa chọn duy nhất qua học kỳ, prompt, kỳ trống, quản lý danh sách, lỗi lưu, môn trùng và PostgreSQL/RLS.
+- Migration 005 đã chạy thành công trên Supabase thật. Truy vấn trong giao dịch xác nhận danh sách mặc định và pg_jsonschema từ chối curriculum sai cấu trúc; giao dịch kiểm thử được rollback.

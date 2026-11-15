@@ -3,7 +3,6 @@ export type PromptSettings = {
   subject: string;
   chapter: string;
   topic: string;
-  level: string;
   language: string;
   reference: string;
   instructions: string;
@@ -14,7 +13,7 @@ export function buildPrompt(s: PromptSettings) {
 Subject: ${s.subject}
 Chapter: ${s.chapter}
 Topic: ${s.topic}
-Academic level: ${s.level}
+Academic level: University
 Content language: ${s.language}
 ${s.pdf ? "Use the attached PDF as the primary reference. Preserve terminology. Include sourcePage only when the page number is actually visible and verified. Report unreadable or insufficient sources instead of fabricating 10 questions." : ""}
 Include learning objectives, definitions and key concepts in theorySections, Markdown and LaTeX math ($...$ or $$...$$), detailed theory, worked examples with verified calculations, common mistakes and a chapter summary.

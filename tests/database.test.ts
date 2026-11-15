@@ -5,6 +5,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
 import { beforeAll, afterAll, it, expect } from "vitest";
 import physics from "../examples/coulomb.json";
+import { defaultCurriculum } from "../src/lib/curriculum";
 let db: PGlite;
 const owner = "00000000-0000-4000-8000-000000000001",
   other = "00000000-0000-4000-8000-000000000002";
@@ -32,9 +33,14 @@ beforeAll(async () => {
   await db.exec(
     `create function extensions.json_matches_schema(s json,p json) returns boolean language sql immutable as $$ select true $$;`,
   );
-  await db.exec(readFileSync("supabase/migrations/202611150002_schema.sql","utf8"));
+  await db.exec(
+    readFileSync("supabase/migrations/202611150002_schema.sql", "utf8"),
+  );
   await db.exec(
     readFileSync("supabase/migrations/202611150003_operations.sql", "utf8"),
+  );
+  await db.exec(
+    readFileSync("supabase/migrations/202611150005_curriculum.sql", "utf8"),
   );
   await db.query("insert into auth.users values($1,$3),($2,$3)", [
     owner,
@@ -44,6 +50,40 @@ beforeAll(async () => {
 }, 30000);
 afterAll(async () => {
   await db.close();
+});
+it("stores each user's curriculum privately and blocks updates to another profile", async () => {
+  const initial = await db.query<{ curriculum: unknown }>(
+    "select curriculum from public.profiles where id=$1",
+    [owner],
+  );
+  expect(initial.rows[0].curriculum).toEqual(defaultCurriculum);
+  const edited = structuredClone(defaultCurriculum);
+  edited.semesters[0].subjects.push("화학 1");
+  await db.exec(
+    `set role authenticated;select set_config('request.jwt.claim.sub','${owner}',false);`,
+  );
+  try {
+    const saved = await db.query<{ curriculum: unknown }>(
+      "update public.profiles set curriculum=$1 where id=$2 returning curriculum",
+      [edited, owner],
+    );
+    expect(saved.rows[0].curriculum).toEqual(edited);
+    const forbidden = await db.query(
+      "update public.profiles set curriculum=$1 where id=$2 returning id",
+      [edited, other],
+    );
+    expect(forbidden.rows).toHaveLength(0);
+    expect((await db.query("select id from public.profiles")).rows).toEqual([
+      { id: owner },
+    ]);
+  } finally {
+    await db.exec("reset role");
+  }
+  const untouched = await db.query<{ curriculum: unknown }>(
+    "select curriculum from public.profiles where id=$1",
+    [other],
+  );
+  expect(untouched.rows[0].curriculum).toEqual(defaultCurriculum);
 });
 it("imports privately, separates keys and deduplicates content", async () => {
   const r = await rpc("import_private_lesson", [owner, physics, null]);

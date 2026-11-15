@@ -1,4 +1,5 @@
 import { client } from "./supabase";
+import { curriculumSchema, type Curriculum } from "./curriculum";
 import type { LessonContent, PublicContent, Option } from "../schemas/lesson";
 export type Lesson = {
   id: string;
@@ -47,6 +48,27 @@ async function check<T>(r: {
   return r.data!;
 }
 export const api = {
+  curriculum: async (): Promise<Curriculum> => {
+    const row = await check(
+      await client().from("profiles").select("curriculum").single(),
+    );
+    return curriculumSchema.parse(row.curriculum);
+  },
+  saveCurriculum: async (
+    userId: string,
+    catalog: Curriculum,
+  ): Promise<Curriculum> => {
+    const valid = curriculumSchema.parse(catalog);
+    const row = await check(
+      await client()
+        .from("profiles")
+        .update({ curriculum: valid })
+        .eq("id", userId)
+        .select("curriculum")
+        .single(),
+    );
+    return curriculumSchema.parse(row.curriculum);
+  },
   lessons: async () =>
     check(
       await client()
@@ -94,13 +116,11 @@ export const api = {
     >,
   touch: async (id: string, userId: string) =>
     check(
-      await client()
-        .from("study_progress")
-        .upsert({
-          lesson_id: id,
-          user_id: userId,
-          last_studied_at: new Date().toISOString(),
-        }),
+      await client().from("study_progress").upsert({
+        lesson_id: id,
+        user_id: userId,
+        last_studied_at: new Date().toISOString(),
+      }),
     ),
   complete: async (id: string, userId: string) =>
     check(

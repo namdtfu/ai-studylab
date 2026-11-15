@@ -103,7 +103,6 @@ describe("canonical content validation", () => {
       subject: "Custom subject",
       chapter: "Chapter",
       topic: "Topic",
-      level: "University",
       language: "vi",
       reference: "",
       instructions: "",

@@ -2244,3 +2244,244 @@ dialog .actions {
 .reference-copy {
   margin: -5px 0 20px;
 }
+
+/* Account-owned semester and subject selector. */
+.course-picker-field {
+  margin-bottom: 24px;
+  position: relative;
+}
+.course-field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 550;
+  margin-bottom: 9px;
+}
+.course-picker {
+  position: relative;
+}
+.course-picker-trigger {
+  width: 100%;
+  min-height: 57px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink);
+}
+.course-picker-trigger.invalid {
+  border-color: #b34b3e;
+}
+.course-picker-trigger > svg:first-child {
+  color: var(--green);
+  flex-shrink: 0;
+}
+.course-picker-trigger > span {
+  flex: 1;
+  min-width: 0;
+}
+.course-picker-trigger strong {
+  font-size: 14px;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.course-picker-trigger small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.course-picker-trigger > svg:last-child {
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.rotated {
+  transform: rotate(180deg);
+}
+.course-dropdown {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  z-index: 12;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel);
+  box-shadow: 0 14px 40px #10281d20;
+  overflow: hidden;
+}
+.course-dropdown-hint {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 14px 16px;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+.semester-groups {
+  max-height: 320px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.semester-group + .semester-group {
+  border-top: 1px solid var(--line);
+}
+.semester-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.semester-count {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+  background: var(--panel);
+  border-radius: 4px;
+  padding: 1px 7px;
+}
+.semester-toggle > svg {
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.semester-subjects {
+  padding: 5px 8px;
+}
+.course-choice {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 11px;
+  border-radius: 6px;
+  padding: 11px 10px;
+  margin: 2px 0;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.course-choice:hover,
+.course-choice.chosen {
+  background: var(--soft);
+}
+.course-choice > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.course-choice > svg {
+  color: var(--green);
+}
+.course-choice input {
+  flex-shrink: 0;
+  margin: 0;
+}
+.semester-empty {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 10px;
+  margin: 0;
+}
+.manage-curriculum {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: 13px;
+  background: var(--panel);
+  color: var(--green);
+  font-size: 11px;
+}
+.manage-curriculum:hover {
+  background: var(--soft);
+}
+.course-help {
+  margin: 8px 0 4px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.course-manage-link {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--green);
+  border: 0;
+  background: none;
+  font-size: 10px;
+  padding: 3px 0;
+}
+.curriculum-editor-list {
+  max-height: 280px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin-bottom: 15px;
+}
+.curriculum-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.curriculum-editor-row input {
+  min-width: 0;
+  flex: 1;
+}
+.curriculum-editor-row button {
+  flex-shrink: 0;
+}
+.curriculum-add-row {
+  display: flex;
+  gap: 9px;
+  margin: 15px 0;
+}
+.curriculum-add-row label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.curriculum-add-row .btn {
+  font-size: 11px;
+  padding: 10px 13px;
+  flex-shrink: 0;
+}
+.curriculum-add-semester {
+  border: 0;
+  background: transparent;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 12px;
+  padding: 8px 0;
+  color: var(--green);
+}
+@media (max-width: 680px) {
+  .course-dropdown {
+    position: relative;
+    top: 0;
+    margin-top: 7px;
+    box-shadow: none;
+  }
+  .semester-groups {
+    max-height: 280px;
+  }
+  .curriculum-add-row {
+    flex-wrap: wrap;
+  }
+  .curriculum-add-row label {
+    flex-basis: 100%;
+  }
+  .curriculum-add-row .btn {
+    width: 100%;
+  }
+}

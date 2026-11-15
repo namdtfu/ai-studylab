@@ -4,15 +4,35 @@ import { useTranslation } from "react-i18next";
 import { Sparkles, ArrowRight, FileText } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { buildPrompt, type PromptSettings } from "../lib/prompt";
-import { CopyButton, PageTitle } from "../components/ui";
+import { CopyButton, PageTitle, useLoad } from "../components/ui";
+import { CoursePicker } from "../components/CoursePicker";
+import { api } from "../lib/api";
+import { useAuth } from "../app/Auth";
+import {
+  hasCourse,
+  type Curriculum,
+  type CourseSelection,
+} from "../lib/curriculum";
+type PromptFields = Omit<PromptSettings, "subject">;
 export function Prompt() {
   const { t } = useTranslation();
-  const { register, handleSubmit, setValue, watch } = useForm<PromptSettings>({
+  const { user } = useAuth();
+  const catalogQuery = useLoad(api.curriculum, [user?.id]);
+  const [savedCatalog, setSavedCatalog] = useState<Curriculum | null>(null);
+  const catalog = savedCatalog || catalogQuery.data;
+  const [selection, setSelection] = useState<CourseSelection | null>(null);
+  const [subjectError, setSubjectError] = useState(false);
+  async function saveCatalog(next: Curriculum) {
+    if (!user) throw new Error("sessionExpired");
+    const result = await api.saveCurriculum(user.id, next);
+    setSavedCatalog(result);
+    if (!hasCourse(result, selection)) setSelection(null);
+    setPrompt("");
+  }
+  const { register, handleSubmit, setValue, watch } = useForm<PromptFields>({
     defaultValues: {
-      subject: "",
       chapter: "",
       topic: "",
-      level: "University",
       language: "한국어",
       reference: "",
       instructions: "",
@@ -69,24 +89,55 @@ export function Prompt() {
       <div className="two-column">
         <form
           className="panel form-panel"
-          onSubmit={handleSubmit((s) => setPrompt(buildPrompt(s)))}
+          onSubmit={handleSubmit((s) => {
+            if (!catalog || !hasCourse(catalog, selection)) {
+              setSubjectError(true);
+              return;
+            }
+            setSubjectError(false);
+            setPrompt(buildPrompt({ ...s, subject: selection!.subject }));
+          })}
         >
           <h2>
             <Sparkles size={20} />
             {t("newLesson")}
           </h2>
+          {catalogQuery.loading && !catalog && (
+            <p className="muted small" role="status">
+              {t("loading")}
+            </p>
+          )}
+          {catalogQuery.error && !catalog && (
+            <div className="notice error" role="alert">
+              <p>{t("catalogLoadError")}</p>
+              <button
+                type="button"
+                className="btn secondary"
+                onClick={catalogQuery.reload}
+              >
+                {t("retry")}
+              </button>
+            </div>
+          )}
+          {catalog && (
+            <CoursePicker
+              catalog={catalog}
+              value={selection}
+              invalid={subjectError}
+              onChange={setSelection}
+              onSave={saveCatalog}
+            />
+          )}
           <div className="form-grid">
             {[
-              ["subject", "subject"],
               ["chapter", "chapter"],
               ["topic", "title"],
-              ["level", "level"],
               ["language", "contentLanguage"],
             ].map(([name, key]) => (
               <label key={name}>
                 {t(key)}
                 <input
-                  {...register(name as keyof PromptSettings, {
+                  {...register(name as keyof PromptFields, {
                     required: true,
                     maxLength: 200,
                   })}
@@ -141,7 +192,7 @@ export function Prompt() {
               {...register("instructions", { maxLength: 10000 })}
             />
           </label>
-          <button className="btn primary" disabled={busy}>
+          <button className="btn primary" disabled={busy || !catalog}>
             <Sparkles size={17} />
             {t("generate")}
           </button>

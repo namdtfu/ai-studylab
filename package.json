@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "schema": "node --import tsx scripts/export-schema.ts",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "curriculum:schema": "node --import tsx scripts/export-curriculum.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
