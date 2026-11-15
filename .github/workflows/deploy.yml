@@ -23,7 +23,7 @@ jobs:
       - run: npm run schema
       - run: npm run curriculum:schema
       - run: git diff --exit-code -- examples/lesson.schema.json supabase/migrations/202611150002_schema.sql
-      - run: git diff --exit-code -- supabase/migrations/202611150005_curriculum.sql
+      - run: git diff --exit-code -- supabase/migrations/202611150006_personal_curriculum.sql
       - run: npm test
       - name: Production build
         run: npm run build

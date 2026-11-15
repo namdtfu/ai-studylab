@@ -5,7 +5,18 @@ import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
 import { beforeAll, afterAll, it, expect } from "vitest";
 import physics from "../examples/coulomb.json";
-import { defaultCurriculum } from "../src/lib/curriculum";
+import {
+  defaultCurriculum,
+  personalCurriculum,
+  type Curriculum,
+} from "../src/lib/curriculum";
+const legacyCatalog: Curriculum = JSON.parse(
+  readFileSync("supabase/migrations/202611150005_curriculum.sql", "utf8").match(
+    /\$catalog\$(.*?)\$catalog\$/s,
+  )![1],
+);
+const existingPersonal = structuredClone(legacyCatalog);
+existingPersonal.semesters[0].subjects = ["화학 전공"];
 let db: PGlite;
 const owner = "00000000-0000-4000-8000-000000000001",
   other = "00000000-0000-4000-8000-000000000002";
@@ -47,24 +58,59 @@ beforeAll(async () => {
     other,
     {},
   ]);
+  await db.query("update public.profiles set curriculum=$1 where id=$2", [
+    existingPersonal,
+    owner,
+  ]);
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/202611150006_personal_curriculum.sql",
+      "utf8",
+    ),
+  );
+  await db.query("insert into auth.users values($1,$2)", [
+    "00000000-0000-4000-8000-000000000003",
+    {},
+  ]);
 }, 30000);
 afterAll(async () => {
   await db.close();
+});
+it("migrates custom curricula intact, hides old seeds and starts newly registered accounts empty", async () => {
+  const own = await db.query<any>(
+    "select curriculum,curriculum_initialized from public.profiles where id=$1",
+    [owner],
+  );
+  expect(own.rows[0].curriculum_initialized).toBe(true);
+  expect(personalCurriculum(own.rows[0])).toEqual(existingPersonal);
+  const seeded = await db.query<any>(
+    "select curriculum,curriculum_initialized from public.profiles where id=$1",
+    [other],
+  );
+  expect(seeded.rows[0].curriculum).toEqual(legacyCatalog);
+  expect(seeded.rows[0].curriculum_initialized).toBe(false);
+  expect(personalCurriculum(seeded.rows[0])).toEqual(defaultCurriculum);
+  const fresh = await db.query<any>(
+    "select curriculum,curriculum_initialized from public.profiles where id=$1",
+    ["00000000-0000-4000-8000-000000000003"],
+  );
+  expect(fresh.rows[0].curriculum).toEqual(defaultCurriculum);
+  expect(fresh.rows[0].curriculum_initialized).toBe(false);
 });
 it("stores each user's curriculum privately and blocks updates to another profile", async () => {
   const initial = await db.query<{ curriculum: unknown }>(
     "select curriculum from public.profiles where id=$1",
     [owner],
   );
-  expect(initial.rows[0].curriculum).toEqual(defaultCurriculum);
-  const edited = structuredClone(defaultCurriculum);
+  expect(initial.rows[0].curriculum).toEqual(existingPersonal);
+  const edited = structuredClone(existingPersonal);
   edited.semesters[0].subjects.push("화학 1");
   await db.exec(
     `set role authenticated;select set_config('request.jwt.claim.sub','${owner}',false);`,
   );
   try {
     const saved = await db.query<{ curriculum: unknown }>(
-      "update public.profiles set curriculum=$1 where id=$2 returning curriculum",
+      "update public.profiles set curriculum=$1,curriculum_initialized=true where id=$2 returning curriculum",
       [edited, owner],
     );
     expect(saved.rows[0].curriculum).toEqual(edited);
@@ -83,7 +129,50 @@ it("stores each user's curriculum privately and blocks updates to another profil
     "select curriculum from public.profiles where id=$1",
     [other],
   );
-  expect(untouched.rows[0].curriculum).toEqual(defaultCurriculum);
+  expect(untouched.rows[0].curriculum).toEqual(legacyCatalog);
+});
+it("allows two majors to keep different lists without reading or changing each other", async () => {
+  const catalog: Curriculum = {
+    schemaVersion: "1.0",
+    semesters: [{ id: "economics", number: 1, subjects: ["경제학 입문"] }],
+  };
+  await db.exec(
+    `set role authenticated;select set_config('request.jwt.claim.sub','${other}',false);`,
+  );
+  try {
+    const saved = await db.query<any>(
+      "update public.profiles set curriculum=$1,curriculum_initialized=true where id=$2 returning curriculum,curriculum_initialized",
+      [catalog, other],
+    );
+    expect(personalCurriculum(saved.rows[0])).toEqual(catalog);
+    expect(
+      (
+        await db.query("select curriculum from public.profiles where id=$1", [
+          owner,
+        ])
+      ).rows,
+    ).toHaveLength(0);
+    expect(
+      (
+        await db.query(
+          "update public.profiles set curriculum_initialized=false where id=$1 returning id",
+          [owner],
+        )
+      ).rows,
+    ).toHaveLength(0);
+  } finally {
+    await db.exec("reset role");
+  }
+  const own = await db.query<any>(
+    "select curriculum,curriculum_initialized from public.profiles where id=$1",
+    [owner],
+  );
+  expect(personalCurriculum(own.rows[0]).semesters[0].subjects).toContain(
+    "화학 전공",
+  );
+  expect(JSON.stringify(personalCurriculum(own.rows[0]))).not.toContain(
+    "경제학 입문",
+  );
 });
 it("imports privately, separates keys and deduplicates content", async () => {
   const r = await rpc("import_private_lesson", [owner, physics, null]);

@@ -18,11 +18,11 @@ export function CurriculumManager({
   const [draft, setDraft] = useState<Curriculum>(() =>
     structuredClone(catalog),
   );
-  const [semesterId, setSemesterId] = useState(catalog.semesters[0].id);
+  const [semesterId, setSemesterId] = useState(catalog.semesters[0]?.id || "");
   const [newSubject, setNewSubject] = useState("");
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const semester = draft.semesters.find((s) => s.id === semesterId)!;
+  const semester = draft.semesters.find((s) => s.id === semesterId);
   function subjects(next: string[]) {
     setError("");
     setDraft((d) => ({
@@ -33,6 +33,7 @@ export function CurriculumManager({
     }));
   }
   function addSubject() {
+    if (!semester) return;
     const name = newSubject.trim();
     if (!name || name.length > 120) {
       setError("subjectNameRequired");
@@ -50,7 +51,7 @@ export function CurriculumManager({
     setNewSubject("");
   }
   function addSemester() {
-    const number = Math.max(...draft.semesters.map((s) => s.number)) + 1;
+    const number = Math.max(0, ...draft.semesters.map((s) => s.number)) + 1;
     if (number > 12) return;
     const id = crypto.randomUUID();
     setDraft((d) => ({
@@ -90,88 +91,95 @@ export function CurriculumManager({
       }}
     >
       <p className="muted small">{t("manageCurriculumHelp")}</p>
-      <label>
-        {t("semester")}
-        <select
-          value={semesterId}
-          disabled={busy}
-          onChange={(e) => {
-            setSemesterId(e.target.value);
-            setNewSubject("");
-            setError("");
-          }}
-        >
-          {draft.semesters.map((s) => (
-            <option key={s.id} value={s.id}>
-              {t("semesterNumber", { number: s.number })}
-            </option>
-          ))}
-        </select>
-      </label>
-      <div className="curriculum-editor-list">
-        {semester.subjects.map((name, i) => (
-          <div className="curriculum-editor-row" key={`${semesterId}-${i}`}>
-            <label className="sr-only" htmlFor={`subject-${i}`}>
-              {t("editSubject", { number: i + 1 })}
-            </label>
-            <input
-              id={`subject-${i}`}
-              maxLength={120}
-              value={name}
+      {!draft.semesters.length && (
+        <p className="notice">{t("personalCurriculumEmpty")}</p>
+      )}
+      {semester && (
+        <>
+          <label>
+            {t("semester")}
+            <select
+              value={semesterId}
               disabled={busy}
-              onChange={(e) =>
-                subjects(
-                  semester.subjects.map((s, k) =>
-                    k === i ? e.target.value : s,
-                  ),
-                )
-              }
-            />
-            <button
-              className="icon-btn"
-              type="button"
-              disabled={busy}
-              aria-label={t("removeSubject", { name })}
-              onClick={() =>
-                subjects(semester.subjects.filter((_, k) => k !== i))
-              }
+              onChange={(e) => {
+                setSemesterId(e.target.value);
+                setNewSubject("");
+                setError("");
+              }}
             >
-              <Trash2 size={17} />
+              {draft.semesters.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {t("semesterNumber", { number: s.number })}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="curriculum-editor-list">
+            {semester.subjects.map((name, i) => (
+              <div className="curriculum-editor-row" key={`${semesterId}-${i}`}>
+                <label className="sr-only" htmlFor={`subject-${i}`}>
+                  {t("editSubject", { number: i + 1 })}
+                </label>
+                <input
+                  id={`subject-${i}`}
+                  maxLength={120}
+                  value={name}
+                  disabled={busy}
+                  onChange={(e) =>
+                    subjects(
+                      semester.subjects.map((s, k) =>
+                        k === i ? e.target.value : s,
+                      ),
+                    )
+                  }
+                />
+                <button
+                  className="icon-btn"
+                  type="button"
+                  disabled={busy}
+                  aria-label={t("removeSubject", { name })}
+                  onClick={() =>
+                    subjects(semester.subjects.filter((_, k) => k !== i))
+                  }
+                >
+                  <Trash2 size={17} />
+                </button>
+              </div>
+            ))}
+          </div>
+          {!semester.subjects.length && (
+            <p className="empty-inline small">{t("noSemesterSubjects")}</p>
+          )}
+          <div className="curriculum-add-row">
+            <label>
+              <span className="sr-only">{t("newSubject")}</span>
+              <input
+                aria-label={t("newSubject")}
+                value={newSubject}
+                maxLength={120}
+                disabled={busy || semester.subjects.length >= 50}
+                placeholder={t("newSubject")}
+                onChange={(e) => setNewSubject(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addSubject();
+                  }
+                }}
+              />
+            </label>
+            <button
+              className="btn secondary"
+              type="button"
+              disabled={busy || semester.subjects.length >= 50}
+              onClick={addSubject}
+            >
+              <Plus size={16} />
+              {t("addSubject")}
             </button>
           </div>
-        ))}
-      </div>
-      {!semester.subjects.length && (
-        <p className="empty-inline small">{t("noSemesterSubjects")}</p>
+        </>
       )}
-      <div className="curriculum-add-row">
-        <label>
-          <span className="sr-only">{t("newSubject")}</span>
-          <input
-            aria-label={t("newSubject")}
-            value={newSubject}
-            maxLength={120}
-            disabled={busy || semester.subjects.length >= 50}
-            placeholder={t("newSubject")}
-            onChange={(e) => setNewSubject(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addSubject();
-              }
-            }}
-          />
-        </label>
-        <button
-          className="btn secondary"
-          type="button"
-          disabled={busy || semester.subjects.length >= 50}
-          onClick={addSubject}
-        >
-          <Plus size={16} />
-          {t("addSubject")}
-        </button>
-      </div>
       <button
         className="curriculum-add-semester"
         type="button"

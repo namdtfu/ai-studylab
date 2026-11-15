@@ -10,7 +10,7 @@ export const semesterSchema = z
 export const curriculumBaseSchema = z
   .object({
     schemaVersion: z.literal("1.0"),
-    semesters: z.array(semesterSchema).min(1).max(12),
+    semesters: z.array(semesterSchema).max(12),
   })
   .strict();
 export const curriculumSchema = curriculumBaseSchema.superRefine(
@@ -42,12 +42,16 @@ export type Curriculum = z.infer<typeof curriculumSchema>;
 export type CourseSelection = { semesterId: string; subject: string };
 export const defaultCurriculum: Curriculum = {
   schemaVersion: "1.0",
-  semesters: [
-    { id: "semester-1", number: 1, subjects: ["수학 1", "물리학 1"] },
-    { id: "semester-2", number: 2, subjects: ["수학 2", "물리학 2"] },
-    { id: "semester-3", number: 3, subjects: [] },
-  ],
+  semesters: [],
 };
+export function personalCurriculum(row: {
+  curriculum: unknown;
+  curriculum_initialized: boolean;
+}): Curriculum {
+  return row.curriculum_initialized
+    ? curriculumSchema.parse(row.curriculum)
+    : structuredClone(defaultCurriculum);
+}
 export function hasCourse(
   catalog: Curriculum,
   selected: CourseSelection | null,

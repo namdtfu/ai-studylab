@@ -1,5 +1,9 @@
 import { client } from "./supabase";
-import { curriculumSchema, type Curriculum } from "./curriculum";
+import {
+  curriculumSchema,
+  personalCurriculum,
+  type Curriculum,
+} from "./curriculum";
 import type { LessonContent, PublicContent, Option } from "../schemas/lesson";
 export type Lesson = {
   id: string;
@@ -50,9 +54,12 @@ async function check<T>(r: {
 export const api = {
   curriculum: async (): Promise<Curriculum> => {
     const row = await check(
-      await client().from("profiles").select("curriculum").single(),
+      await client()
+        .from("profiles")
+        .select("curriculum,curriculum_initialized")
+        .single(),
     );
-    return curriculumSchema.parse(row.curriculum);
+    return personalCurriculum(row);
   },
   saveCurriculum: async (
     userId: string,
@@ -62,7 +69,7 @@ export const api = {
     const row = await check(
       await client()
         .from("profiles")
-        .update({ curriculum: valid })
+        .update({ curriculum: valid, curriculum_initialized: true })
         .eq("id", userId)
         .select("curriculum")
         .single(),

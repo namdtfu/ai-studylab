@@ -4,7 +4,7 @@
 
 | Kiểm tra | Kết quả |
 |---|---|
-| `npm test` | **54/54** tests, 9 suites |
+| `npm test` | **58/58** tests, 9 suites |
 | `npm run build` | TypeScript strict và Vite production build thành công |
 | `VITE_BASE_PATH=/test-repository/ npm run build` | Build với repository subpath thành công |
 | `scripts/check-build.mjs` | 8 entry assets tồn tại, đúng prefix cho cả `/` và `/test-repository/` |
@@ -20,7 +20,7 @@ Kiểm thử PostgreSQL dùng **PGlite**, chạy PL/pgSQL và RLS thật: tạo 
 
 ## Supabase thật: đã triển khai và xác minh
 
-Project `yitolptsdnjxehzbwass` đã được áp dụng năm migration qua SQL Editor trong giao dịch: pg_jsonschema, bảng, RLS, RPC import/edit/grade chỉ dành cho service_role profile backfill và danh sách học kỳ/môn học riêng trong profiles.curriculum.
+Project `yitolptsdnjxehzbwass` đã được áp dụng sáu migration qua SQL Editor trong giao dịch: pg_jsonschema, bảng, RLS, RPC import/edit/grade chỉ dành cho service_role profile backfill và danh sách học kỳ/môn học riêng trong profiles.curriculum.
 
 Ba Edge Function `import-lesson`, `grade-quiz`, `edit-lesson` đã deploy qua Dashboard từ bundle tạo bởi `scripts/bundle-edge.mjs`. Theo phê duyệt của người dùng, legacy JWT gateway được tắt; function vẫn bắt buộc xác minh `auth.getUser(token)`.
 
@@ -82,3 +82,10 @@ Hoàn tất cấu hình theo README rồi thực hiện toàn bộ `docs/CHECKLI
 - File thực tế đã sửa vượt qua schema đủ 10 câu; 74 công thức được phân tích bằng remark-math và render KaTeX không lỗi. Chỉ sửa định dạng; chưa thẩm định toàn bộ tính đúng đắn học thuật của tài liệu AI.
 - GitHub Pages đã phát hành bản sửa; kiểm tra bằng tài khoản thật: JSON gốc hiện lỗi, nút Sửa định dạng JSON tạo được bản xem trước đủ 10 câu. Bản có công thức được chuẩn hóa đã nhập thành công từ khối mã, lưu qua Edge Function và đọc lại sau reload.
 - Quiz mở đủ 10 câu, chưa chọn đáp án hoặc nộp bài trong lần xác minh này. Bài được giữ trong tài khoản người dùng để học.
+
+## Tách danh sách theo chuyên ngành và tài khoản — 15/11/2026
+
+- Tài khoản mới không có học kỳ hoặc môn điền sẵn. Mỗi người thêm danh sách riêng bằng Quản lý học kỳ và môn học.
+- Migration 006 giữ nguyên dữ liệu curriculum cũ; danh sách đã tùy chỉnh được đánh dấu cá nhân, bản seed chung cũ không hiển thị cho tới khi chủ tài khoản tự thiết lập.
+- Protected remount theo user.id, xóa trạng thái trang khi chuyển tài khoản; phản hồi tải dữ liệu trễ của phiên trước không đi vào phiên mới. Token refresh cùng user vẫn giữ trạng thái.
+- 4 kiểm thử mới: thiết lập từ trống, chuyển tài khoản và phản hồi trễ, migration cho dữ liệu cũ/mới, hai chuyên ngành với danh sách độc lập và RLS. Các test RLS bài học, lịch sử, tiến độ và bản nháp vẫn đạt.

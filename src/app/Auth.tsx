@@ -1,5 +1,6 @@
 import {
   createContext,
+  Fragment,
   useContext,
   useEffect,
   useState,
@@ -86,5 +87,5 @@ export function Protected({ children }: { children: ReactNode }) {
     return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
   if (recovery && loc.pathname !== "/reset-password")
     return <Navigate to="/reset-password" replace />;
-  return children;
+  return <Fragment key={user.id}>{children}</Fragment>;
 }

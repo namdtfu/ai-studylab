@@ -25,6 +25,8 @@ vi.mock("../src/lib/supabase", () => ({
 vi.mock("../src/lib/api", () => ({ api: { profile: () => Promise.reject() } }));
 import { AuthProvider, Protected, useAuth } from "../src/app/Auth";
 import { act } from "react";
+import { useState } from "react";
+import { useLoad } from "../src/components/ui";
 beforeEach(() => {
   mock.session = null;
   mock.getSession.mockImplementation(async () => ({
@@ -97,4 +99,55 @@ it("handles session expiration and logout", async () => {
   });
   await waitFor(() => expect(mock.signOut).toHaveBeenCalled());
   expect(screen.getByText("signed-out")).toBeVisible();
+});
+it("clears private state on an account change and ignores the prior account's late response", async () => {
+  mock.session = { user: { id: "a" } };
+  let resolveA!: (value: string) => void;
+  let resolveB!: (value: string) => void;
+  const loads = {
+    a: new Promise<string>((r) => {
+      resolveA = r;
+    }),
+    b: new Promise<string>((r) => {
+      resolveB = r;
+    }),
+  };
+  function PrivatePanel() {
+    const { user } = useAuth();
+    const [draft, setDraft] = useState("");
+    const data = useLoad(() => loads[user!.id as "a" | "b"], []);
+    return (
+      <>
+        <input
+          aria-label="private draft"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+        />
+        <p>{data.data || "waiting"}</p>
+      </>
+    );
+  }
+  render(
+    <MemoryRouter>
+      <AuthProvider>
+        <Protected>
+          <PrivatePanel />
+        </Protected>
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+  const input = await screen.findByLabelText("private draft");
+  // Native change through testing-library is sufficient for an account-local buffer.
+  const { fireEvent } = await import("@testing-library/react");
+  fireEvent.change(input, { target: { value: "account-a-draft" } });
+  await act(async () =>
+    mock.listener?.("TOKEN_REFRESHED", { user: { id: "a" } }),
+  );
+  expect(screen.getByLabelText("private draft")).toHaveValue("account-a-draft");
+  await act(async () => mock.listener?.("SIGNED_IN", { user: { id: "b" } }));
+  expect(screen.getByLabelText("private draft")).toHaveValue("");
+  await act(async () => resolveA("account-a-secret"));
+  expect(screen.queryByText("account-a-secret")).toBeNull();
+  await act(async () => resolveB("account-b-data"));
+  expect(await screen.findByText("account-b-data")).toBeVisible();
 });

@@ -8,8 +8,18 @@ import {
   curriculumSchema,
   defaultCurriculum,
   hasCourse,
+  personalCurriculum,
+  type Curriculum,
 } from "../src/lib/curriculum";
 import { readFileSync } from "node:fs";
+const personalExample: Curriculum = {
+  schemaVersion: "1.0",
+  semesters: [
+    { id: "semester-1", number: 1, subjects: ["수학 1", "물리학 1"] },
+    { id: "semester-2", number: 2, subjects: ["수학 2", "물리학 2"] },
+    { id: "semester-3", number: 3, subjects: [] },
+  ],
+};
 vi.mock("../src/app/Auth", () => ({
   useAuth: () => ({ user: { id: "owner" } }),
 }));
@@ -21,9 +31,7 @@ import { Prompt } from "../src/pages/Prompt";
 
 beforeEach(async () => {
   await act(() => i18n.changeLanguage("vi"));
-  vi.mocked(api.curriculum).mockResolvedValue(
-    structuredClone(defaultCurriculum),
-  );
+  vi.mocked(api.curriculum).mockResolvedValue(structuredClone(personalExample));
   vi.mocked(api.saveCurriculum).mockImplementation(async (_id, catalog) =>
     structuredClone(catalog),
   );
@@ -43,31 +51,69 @@ async function picker() {
   return screen.findByRole("button", { name: "Chọn học kỳ và môn học" });
 }
 
-it("starts with the requested semester groups and validates catalog integrity", () => {
-  expect(defaultCurriculum.semesters.map((s) => s.subjects)).toEqual([
-    ["수학 1", "물리학 1"],
-    ["수학 2", "물리학 2"],
-    [],
-  ]);
+it("starts empty and hides the legacy seed until the account explicitly configures it", () => {
+  expect(defaultCurriculum.semesters).toEqual([]);
+  expect(
+    personalCurriculum({
+      curriculum: personalExample,
+      curriculum_initialized: false,
+    }),
+  ).toEqual(defaultCurriculum);
+  expect(
+    personalCurriculum({
+      curriculum: personalExample,
+      curriculum_initialized: true,
+    }),
+  ).toEqual(personalExample);
   expect(curriculumSchema.safeParse(defaultCurriculum).success).toBe(true);
-  const invalid = structuredClone(defaultCurriculum);
+  const invalid = structuredClone(personalExample);
   invalid.semesters[0].subjects = ["수학 1", " 수학 1 "];
   expect(curriculumSchema.safeParse(invalid).success).toBe(false);
   expect(
-    hasCourse(defaultCurriculum, {
+    hasCourse(personalExample, {
       semesterId: "semester-2",
       subject: "물리학 2",
     }),
   ).toBe(true);
   expect(
-    hasCourse(defaultCurriculum, {
+    hasCourse(personalExample, {
       semesterId: "semester-1",
       subject: "물리학 2",
     }),
   ).toBe(false);
   expect(
-    readFileSync("supabase/migrations/202611150005_curriculum.sql", "utf8"),
+    readFileSync(
+      "supabase/migrations/202611150006_personal_curriculum.sql",
+      "utf8",
+    ),
   ).toContain(JSON.stringify(defaultCurriculum));
+});
+it("lets a new account create its first semester and its own major's subjects", async () => {
+  vi.mocked(api.curriculum).mockResolvedValue(
+    structuredClone(defaultCurriculum),
+  );
+  const user = userEvent.setup();
+  mount();
+  await picker();
+  await user.click(
+    screen.getByRole("button", { name: "Quản lý học kỳ và môn học" }),
+  );
+  const dialog = screen.getByRole("dialog");
+  expect(within(dialog).queryByLabelText("Tên môn 1")).toBeNull();
+  await user.click(within(dialog).getByRole("button", { name: "Thêm học kỳ" }));
+  await user.type(
+    within(dialog).getByRole("textbox", { name: "Tên môn học mới" }),
+    "경제학 입문",
+  );
+  await user.click(within(dialog).getByRole("button", { name: "Thêm môn" }));
+  await user.click(within(dialog).getByRole("button", { name: "Lưu" }));
+  await waitFor(() => expect(api.saveCurriculum).toHaveBeenCalled());
+  const saved = vi.mocked(api.saveCurriculum).mock.calls[0];
+  expect(saved[0]).toBe("owner");
+  expect(saved[1].semesters).toHaveLength(1);
+  expect(saved[1].semesters[0].number).toBe(1);
+  expect(saved[1].semesters[0].subjects).toEqual(["경제학 입문"]);
+  expect(screen.queryByRole("checkbox", { name: "물리학 1" })).toBeNull();
 });
 it("removes academic-level input and requires a chosen subject", async () => {
   const user = userEvent.setup();
@@ -130,12 +176,8 @@ it("edits and persists the account's curriculum, and loads it on a later visit",
     within(dialog).getByRole("textbox", { name: "Tên môn học mới" }),
     "화학 1",
   );
-  await user.click(
-    within(dialog).getByRole("button", { name: "Thêm môn" }),
-  );
-  await user.click(
-    within(dialog).getByRole("button", { name: "Lưu" }),
-  );
+  await user.click(within(dialog).getByRole("button", { name: "Thêm môn" }));
+  await user.click(within(dialog).getByRole("button", { name: "Lưu" }));
   await waitFor(() => expect(api.saveCurriculum).toHaveBeenCalled());
   const saved = vi.mocked(api.saveCurriculum).mock.calls[0];
   expect(saved[0]).toBe("owner");
@@ -177,9 +219,7 @@ it("blocks duplicate subject names before saving", async () => {
     within(dialog).getByRole("textbox", { name: "Tên môn học mới" }),
     "수학 1",
   );
-  await user.click(
-    within(dialog).getByRole("button", { name: "Thêm môn" }),
-  );
+  await user.click(within(dialog).getByRole("button", { name: "Thêm môn" }));
   expect(within(dialog).getByRole("alert")).toHaveTextContent(
     "Tên môn bị trùng",
   );

@@ -25,7 +25,7 @@ export function CoursePicker({
   const [open, setOpen] = useState(false),
     [manager, setManager] = useState(false);
   const [expanded, setExpanded] = useState(
-    value?.semesterId || catalog.semesters[0].id,
+    value?.semesterId || catalog.semesters[0]?.id || "",
   );
   const root = useRef<HTMLDivElement>(null),
     trigger = useRef<HTMLButtonElement>(null);
@@ -94,6 +94,9 @@ export function CoursePicker({
             aria-label={t("subjectsBySemester")}
           >
             <p className="course-dropdown-hint">{t("chooseOneSubject")}</p>
+            {!catalog.semesters.length && (
+              <p className="semester-empty">{t("personalCurriculumEmpty")}</p>
+            )}
             <div className="semester-groups">
               {catalog.semesters.map((semester) => (
                 <section className="semester-group" key={semester.id}>
@@ -173,7 +176,11 @@ export function CoursePicker({
         id={helpId}
       >
         {t(
-          invalid && !selected ? "selectSubjectRequired" : "chooseSubjectHelp",
+          invalid && !selected
+            ? "selectSubjectRequired"
+            : !catalog.semesters.length
+              ? "personalCurriculumEmpty"
+              : "chooseSubjectHelp",
         )}
       </p>
       <button
