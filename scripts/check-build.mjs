@@ -1,0 +1,2 @@
+import {readFileSync,existsSync} from 'node:fs';import assert from 'node:assert/strict';
+const base=process.env.VITE_BASE_PATH||'/';const html=readFileSync('dist/index.html','utf8');const urls=[...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m=>m[1]);assert(urls.length>0);for(const url of urls){assert(url.startsWith(base),`Asset outside base: ${url}`);assert(existsSync('dist/'+url.slice(base.length)),`Missing asset: ${url}`);}console.log(`Verified ${urls.length} entry assets with base ${base}`);

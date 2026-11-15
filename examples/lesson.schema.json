@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "chapter": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "language": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 40
+    },
+    "academicLevel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "learningObjectives": {
+      "minItems": 1,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30000
+      }
+    },
+    "theorySections": {
+      "minItems": 1,
+      "maxItems": 40,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "example": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          }
+        },
+        "required": [
+          "heading",
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "workedExamples": {
+      "minItems": 1,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "solution": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          }
+        },
+        "required": [
+          "title",
+          "problem",
+          "solution"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "commonMistakes": {
+      "minItems": 1,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30000
+      }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30000
+    },
+    "questions": {
+      "minItems": 10,
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "theory",
+              "application"
+            ]
+          },
+          "questionText": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "A": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30000
+              },
+              "B": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30000
+              },
+              "C": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30000
+              },
+              "D": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30000
+              }
+            },
+            "required": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "additionalProperties": false
+          },
+          "correctOption": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "sourcePage": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "questionText",
+          "options",
+          "correctOption",
+          "explanation"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "subject",
+    "chapter",
+    "title",
+    "language",
+    "academicLevel",
+    "learningObjectives",
+    "theorySections",
+    "workedExamples",
+    "commonMistakes",
+    "summary",
+    "questions"
+  ],
+  "additionalProperties": false
+}

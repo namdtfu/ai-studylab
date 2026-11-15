@@ -1,0 +1,17 @@
+project_id = "ai-studylab"
+[auth]
+enable_signup = true
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+[functions.import-lesson]
+verify_jwt = false
+import_map = "./functions/deno.json"
+[functions.grade-quiz]
+verify_jwt = false
+import_map = "./functions/deno.json"
+[functions.edit-lesson]
+verify_jwt = false
+import_map = "./functions/deno.json"
+# Each function explicitly verifies the bearer token with auth.getUser().
+# This also supports modern Supabase publishable keys at the gateway.
