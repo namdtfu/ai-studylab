@@ -51,7 +51,16 @@ Bài mẫu và hai lượt trình duyệt được giữ trong tài khoản củ
 - Đăng nhập và luồng học thật đã được xác minh. Người dùng tự xử lý email xác nhận; agent không đọc hộp thư. Chưa thử email khôi phục mật khẩu hoặc thời hạn gửi email trên SMTP production.
 - Luồng tài khoản thật đã kiểm tra trên Cốc Cốc desktop. Mobile riêng cho các trang sau đăng nhập chưa được kiểm tra bằng backend thật.
 - Chưa thử trích PDF trong trình duyệt bằng một tập PDF thực. Có giới hạn và xử lý lỗi trong mã, nhưng độ chính xác trích văn bản phụ thuộc tài liệu.
-- GitHub Pages workflow đã được cung cấp và local build/subpath kiểm tra thành công; chưa được chạy trong repository GitHub của người dùng.
+- GitHub Pages đã triển khai thành công tại `https://namdtfu.github.io/ai-studylab/`; workflow đầu tiên chạy thành công trên Ubuntu với 40 tests và production build.
 - Build có cảnh báo annotation `@__PURE__` trong mã nguồn thư viện Zod; Rollup loại comment và hoàn tất. Không có lỗi TypeScript/build.
 
 Hoàn tất cấu hình theo README rồi thực hiện toàn bộ `docs/CHECKLIST.md` trước khi gọi hệ thống là đã xác minh production.
+
+## GitHub Pages — 15/11/2026
+
+- Repository: https://github.com/namdtfu/ai-studylab
+- Website: https://namdtfu.github.io/ai-studylab/
+- Workflow đầu tiên: https://github.com/namdtfu/ai-studylab/actions/runs/43672074012 — build và deploy thành công.
+- Base path: `/ai-studylab/`; frontend dùng lại project Supabase và ba Edge Function đã kiểm thử thật.
+- Supabase Site URL đã đổi sang URL GitHub Pages; Redirect URLs giữ cả GitHub Pages và bản Sites cũ.
+- Session đăng nhập được lưu theo origin của trình duyệt. Người dùng đăng nhập lại ở địa chỉ GitHub Pages bằng cùng tài khoản; dữ liệu Supabase được giữ nguyên.
