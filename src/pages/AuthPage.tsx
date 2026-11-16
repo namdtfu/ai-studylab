@@ -228,12 +228,11 @@ export function AuthPage({
               <ArrowRight size={18} />
             </button>
           </form>
-          <p className="auth-switch">
-            {t(mode === "login" ? "noAccount" : "haveAccount")}{" "}
-            <Link to={mode === "login" ? "/register" : "/login"}>
-              {t(mode === "login" ? "register" : "login")}
-            </Link>
-          </p>
+          {mode !== "login" && (
+            <p className="auth-switch">
+              {t("haveAccount")} <Link to="/login">{t("login")}</Link>
+            </p>
+          )}
           <div className="auth-divider" />
           <p className="auth-note">
             <Sparkles size={15} />
